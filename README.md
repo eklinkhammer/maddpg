@@ -1,5 +1,7 @@
 # Multi-Agent Deep Deterministic Policy Gradient (MADDPG)
 
+This fork of MADDPG is extending MADDPG to use multi task learning between the adversary and teammate prediction policies and the main actor / critic networks.
+
 This is the code for implementing the MADDPG algorithm presented in the paper:
 [Multi-Agent Actor-Critic for Mixed Cooperative-Competitive Environments](https://arxiv.org/pdf/1706.02275.pdf).
 It is configured to be run in conjunction with environments from the
