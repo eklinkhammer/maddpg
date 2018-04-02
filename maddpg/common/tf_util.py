@@ -21,7 +21,7 @@ def concatenate(arrs, axis=0):
 def argmax(x, axis=None):
     return tf.argmax(x, axis=axis)
 def softmax(x, axis=None):
-    return tf.nn.softmax(x, dim=axis)    
+    return tf.nn.softmax(x, axis=axis)    
 
 # ================================================================
 # Misc
@@ -75,7 +75,7 @@ class BatchInput(PlacholderTfInput):
         Parameters
         ----------
         shape: [int]
-            shape of a single elemenet of the batch
+            shape of a single element of the batch
         dtype: tf.dtype
             number representation used for tensor contents
         name: str

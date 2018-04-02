@@ -27,6 +27,11 @@ def make_update_exp(vals, target_vals):
 
 def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad_norm_clipping=None, local_q_func=False, num_units=64, scope="trainer", reuse=None):
     with tf.variable_scope(scope, reuse=reuse):
+        print ("p_train")
+        print ("scope: " + str(scope))
+        print ("reuse: " + str(reuse))
+        print ("scope_name: " + str(U.scope_name()))
+        
         # create distribtuions
         act_pdtype_n = [make_pdtype(act_space) for act_space in act_space_n]
 
@@ -48,6 +53,7 @@ def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad
         act_input_n = act_ph_n + []
         act_input_n[p_index] = act_pd.sample() #act_pd.mode() #
         q_input = tf.concat(obs_ph_n + act_input_n, 1)
+
         if local_q_func:
             q_input = tf.concat([obs_ph_n[p_index], act_input_n[p_index]], 1)
         q = q_func(q_input, 1, scope="q_func", reuse=True, num_units=num_units)[:,0]
@@ -83,11 +89,12 @@ def q_train(make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_cl
         target_ph = tf.placeholder(tf.float32, [None], name="target")
 
         q_input = tf.concat(obs_ph_n + act_ph_n, 1)
+
         if local_q_func:
             q_input = tf.concat([obs_ph_n[q_index], act_ph_n[q_index]], 1)
         q = q_func(q_input, 1, scope="q_func", num_units=num_units)[:,0]
-        q_func_vars = U.scope_vars(U.absolute_scope_name("q_func"))
 
+        q_func_vars = U.scope_vars(U.absolute_scope_name("q_func"))
         q_loss = tf.reduce_mean(tf.square(q - target_ph))
 
         # viscosity solution to Bellman differential equation in place of an initial condition
@@ -98,6 +105,7 @@ def q_train(make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_cl
 
         # Create callable functions
         train = U.function(inputs=obs_ph_n + act_ph_n + [target_ph], outputs=loss, updates=[optimize_expr])
+
         q_values = U.function(obs_ph_n + act_ph_n, q)
 
         # target network
@@ -118,6 +126,8 @@ class MADDPGAgentTrainer(AgentTrainer):
         obs_ph_n = []
         for i in range(self.n):
             obs_ph_n.append(U.BatchInput(obs_shape_n[i], name="observation"+str(i)).get())
+
+        self.obs_ph_n = obs_ph_n
 
         # Create all the functions necessary to train the model
         self.q_train, self.q_update, self.q_debug = q_train(
